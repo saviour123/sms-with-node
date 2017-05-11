@@ -24,6 +24,17 @@ const nexmo = new Nexmo({
     apiSecret: '2b9dbe21237f35f6',
 }, { debug: true });
 
+
+/**
+ *  serve file in the public directory
+ */
+app.set('views', __dirname + '/../views');
+app.set('view engine', 'html');
+app.engine('html', ejs.renderFile);
+app.use(express.static(__dirname + '/../public'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 const io = socketio(server);
 io.on('connection', (socket) => {
     console.log('Connected');
@@ -32,16 +43,6 @@ io.on('connection', (socket) => {
     });
 });
 
-
-
-// serve file in the public directory
-app.set('views', __dirname + '/../views');
-console.log(__dirname);
-app.set('view engine', 'html');
-app.engine('html', ejs.renderFile);
-app.use(express.static(__dirname + '/../public'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 // render an index view..
 app.get('/', (req, res) => {
@@ -60,8 +61,10 @@ app.post('/', (req, res) => {
             if (err) {
                 console.log(err);
             } else {
-                console.dir(responseData);
-                // socket io
+                console.dir(responseData); //experimental
+                let data = { id: responseData.messages[0]['message-id'], number: responseData.messages[0]['to'] };
+                io.emit('smsStatus', data);
+                console.log(data);
             }
         }
     );
