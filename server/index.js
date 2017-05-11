@@ -68,4 +68,7 @@ app.post('/', (req, res) => {
             }
         }
     );
+
+    res.send(req.query);
+    console.log
 });
