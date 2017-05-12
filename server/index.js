@@ -1,23 +1,18 @@
 'use strict';
 
+const http = require('http');
 const express = require('express');
 const Nexmo = require('nexmo');
-const socketio = require('socket.io');
 const bodyParser = require('body-parser');
 const ejs = require('ejs');
 
 const app = express();
 
 /**
- * start the little server
+ * create the little server
  */
-const server = app.listen(4000, function(err) {
-    if (err) {
-        throw err;
-    } else {
-        console.log(`server is listening on 4000`)
-    }
-});
+const server = http.createServer(app);
+const io = require('socket.io').listen(server);
 
 const nexmo = new Nexmo({
     apiKey: '49a99cce',
@@ -35,7 +30,11 @@ app.use(express.static(__dirname + '/../public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const io = socketio(server);
+
+/**
+ * socket.io additions
+ */
+
 io.on('connection', (socket) => {
     console.log('Connected');
     socket.on('disconnect', () => {
@@ -72,3 +71,6 @@ app.post('/', (req, res) => {
     res.send(req.query);
     console.log
 });
+
+
+server.listen(3000);
